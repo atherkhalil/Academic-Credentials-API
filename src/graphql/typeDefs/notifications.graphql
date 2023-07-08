@@ -1,0 +1,48 @@
+import  {gql} from "apollo-server-express" 
+module.exports  =  gql`
+ scalar Date
+type NewNotification {
+    id:ID!
+    notifiedBy:notifiedBy!
+    notifiedTo:notifiedTo!
+    notificationDate:Date!
+    status:String!
+    notificationItem:notificationItem!
+    subject:String!
+    notifyMessage:String!
+}
+input inputNotification{
+    notifiedBy:i_notifiedBy!
+    notifiedTo:i_notifiedTo!
+    notificationDate:Date!
+    status:String!
+    notificationItem:i_notificationItem!
+    subject:String!
+    notifyMessage:String
+}
+type notifiedBy {
+    entity:String!,
+    id:ID!
+}
+type notifiedTo {
+    entity:String!,
+    id:ID!
+}
+type notificationItem {
+    type:String,
+    id:String
+}
+input i_notifiedBy {
+    entity:String!,
+    id:ID!
+}
+input i_notifiedTo {
+    entity:String!,
+    id:ID!
+}
+input i_notificationItem {
+    type:String,
+    id:String
+}
+
+`

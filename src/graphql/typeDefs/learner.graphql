@@ -1,0 +1,143 @@
+import {
+  gql
+} from "apollo-server-express"
+
+module.exports = gql `
+ scalar Date
+  type Query {
+    GetLearnerDetail(learnerId:ID!):Learner!
+    getLearnerDashboardData: JSON
+    getLearnerPrograms(learnerId:ID!) : [enrolledPrograms]
+    GetLeanerByEmail(email:String) :Learner
+    GetEquivalencyDetail(equivalencyId:ID!): equivalency
+    GetEquivalencyDetailByCredentialId(credentialId:ID!): equivalency
+    GetLearnerProgramChart(id:ID!) :JSON
+          },
+
+    type Mutation {
+          LernerOnboarding(data:lernerOnboarding) : String!
+          ActivateLearner(otp:String!,learnerId:String!) : String!
+          SetLearnerPassword (password:String!,confirmPassword:String!) : String!
+          LearnerLogin (email:String!, password:String!) : LearnerLogin!
+          UpdateLearnerDetails(firstName:String!,lastName:String!, dob:String!, gender:String!,telephone:String,address:Address ) :Learner!
+          SendAttestationRequest(credentialId:String,moeId:String): String!
+          sendRequestForEquivalency(data:equivalencyPayload) : String!
+          ResendRequestForEquivalency(data:equivalencyPayload) : String!
+          updateEquivalencyStatus(data:updateEquivalencyStatus):String! 
+          },
+
+  type Subscription {
+    newMessage: String!
+    learnerOnboard(NewNotification:inputNotification) : NewNotification
+    sendRequestForEquivalency(NewNotification:inputNotification) : NewNotification
+  }
+
+type Learner {
+    id: ID
+    firstName:String!
+    lastName:String!
+    dob:String!
+    gender:String!
+    telephone:String!
+    email:String!
+    address:address!
+    isVerified:Boolean!
+    programs:[programObject]!
+    signature:signature
+    createdAt:String!,
+    updatedAt:String!,
+    qrCode:String
+    publicKey:String
+    privateKey:String
+    fcm:[String]
+}
+
+type programObject {
+id:ID!
+programId:String!
+title:String!
+issuerId:String!
+   }
+
+input lernerOnboarding {
+    firstName:String!
+    lastName:String!
+    dob:String!
+    gender:String!
+    telephone:String!
+    email:String!
+    address:Address!
+    program:leanerProgram!
+}
+
+
+# login Type
+  type LearnerLogin {
+    learner: Learner!
+    token: String!  
+  }
+
+input leanerProgram {
+programId:String!
+title:String!
+issuerId:String!
+registrationNumber:String!
+programRegistrationNumber:String!
+creditHours:Int!
+enrollmentDate:Date
+session:String!
+duration:String!
+totalSemesters:Int!
+totalYears:Int!
+majorSelection:String!
+majors:[majors]!
+semesters:[semester]
+}
+
+type enrolledPrograms {
+id:ID
+learnerId:ID,
+issuerId:ID,
+firstName:String,
+lastName:ID,
+gender:ID,
+creditHours:Int
+telephone:ID,
+email:String,
+createdAt:Date,
+updatedAt:Date,
+address:JSON
+program:learnerProgram
+}
+
+
+input majors  {
+majorId:String
+title:String
+}
+
+type learnerProgram {
+enrollmentDate:Date,
+status:String,
+programId:String
+title:String
+registrationNumber:String
+programRegistrationNumber:String
+session:String
+duration:String
+majorSelection:String
+majors:JSON
+totalSemesters:Int
+totalYears:Int
+creditHours:Int
+cgpa:Float
+semesters:[semesters]
+}
+
+  type LeanerDashboard{
+   totalCourse:JSON
+   totalLearner:JSON
+   totalCredential:JSON
+  }
+
+`;

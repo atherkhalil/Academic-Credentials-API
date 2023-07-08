@@ -1,0 +1,87 @@
+import  {gql} from "apollo-server-express" 
+
+module.exports  =  gql`
+scalar JSON
+    type Query {
+    GetMOEDetails(moeId:String): Moe!
+    GetPendingIssuerRequests(approved:Boolean):[Issuer]!
+    getPendingAttestationRequests:[Credential]
+    GetMoeDashboardData: JSON  
+      },
+
+
+    type Mutation {
+    MoeOnBoarding(data: MoeOnBoarding) : String!
+    ActivateMOE (opt:String!,moeId:String!) : String!
+    SetMoePassword (password:String!,confirmPassword:String!) : String!
+    MOELogin (email:String!, password:String!) : login!
+    ApprovedIssuer(issuerId:ID!,approved:Boolean!) : String!
+    UpdateMoeDetails(name:String!,telephone:String!,contactEmail:String!,siteUrl:String) : Moe!
+    SignatureUpload(file: Upload): String!
+
+    },
+    type Subscription {
+      newMessage: String!
+    },
+ # Moe type  
+    type Moe {
+        id: ID!
+        name: String!,
+        adminEmail: String!,
+        telephone: String!,
+        contactEmail: String!,
+        publicKey: String,
+        privateKey:String,
+        logoUrl: String,
+        siteUrl: String!,
+        signature:signature,
+        isVerified:Boolean!,
+        createdAt:String!,
+        updatedAt:String!,
+        qrCode:String,
+        secret:secret
+        fcm:[String] 
+        configs:configs
+    }
+    
+   type secret {
+    ascii:String,
+    hex:String,
+    base32:String,
+    otpauth_url:String
+    }
+    
+ # signature type 
+    type signature {
+        imageUrl:String,
+        uploadDate:String,
+    }
+
+ # login Type
+  type login {
+    Moe: Moe!
+    token: String!
+  }
+
+ # input payload for MoeOnBoarding mutation
+    input MoeOnBoarding {
+        name: String!,
+        adminEmail: String!,
+        telephone: String!,
+        contactEmail:String!,
+        siteUrl:String!,
+    }
+
+
+### For File upload
+
+    scalar Upload
+
+    type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
+
+`

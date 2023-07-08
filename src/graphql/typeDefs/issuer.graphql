@@ -1,0 +1,329 @@
+import {
+    gql
+} from "apollo-server-express"
+
+module.exports = gql `
+
+    scalar JSON
+
+    type Query {
+     GetIssuerDetail(issuerId:ID!): Issuer!
+     GetLearnersByIssuer:[Learner]
+     GetCredentialBYId(credentialId:String) :  Credential
+     GetCredentialsBYProgramId(Id:String):[Credential]
+     GetCredentials: [Credential]
+     GetIssuerDashboardData(year:String): JSON
+     getEnrolledProgramById(enrolledProgramId:ID!):getEnrolledProgramByID!
+     GetNotifications:[NewNotification]
+    },
+
+    type Mutation {
+    IssuerOnBoarding(data: IssuerOnBoarding) : String!
+    ActivateIssuer(otp:String!,issuerId:String!) : String!
+    SetIssuerPassword (password:String!,confirmPassword:String!) : String!
+    IssuerLogin (email:String!, password:String!) : login!
+    UpdateIssuerDetails(type:String!,name:String!,contactEmail:String!,telephone:String,address:Address!,siteUrl:String,description:String) : Issuer!
+    createCredentials(data:CreateCredential!) : respCreateCredentials!
+    signCredentials(credentialId:String,status:String, comment:String): String!
+    syncProgram(file: Upload ): String!
+    GetCredentialsForCards: [CredentialsForCards]!
+    syncCourses(file: Upload ): String
+    syncMajors(file: Upload ): String
+    syncPrograms(file: Upload ): String
+    updateFCM(fcmtoken:String!):String!
+    deleteFCM(fcmtoken:String!):String!
+    updateConfigs(Configuration:Configuration):String!
+    syncLearners(file:Upload) :String!
+    UpdateNotificationStatus(notificationId:String!) : String
+    ClearAllNotification: String
+    #importLearners(learners:learners) :String!
+
+    },
+
+    type Subscription {
+    login: String!
+    createCredential(NewNotification:inputNotification) : NewNotification
+    signCredential(NewNotification:inputNotification) : NewNotification
+    issuerOnboard(NewNotification:inputNotification) : NewNotification
+    syncCourses(NewNotification:inputNotification) : NewNotification
+
+    },
+
+
+  
+# type  createCredentialSubscription {
+#   mutation: String!
+#   data: String!
+# }
+
+# type result {
+#   enrolledPrograms:enrolledPrograms!,
+#   credentialCreated:Boolean!
+# }
+
+    type respCreateCredentials{
+      credentialId:String!
+      txnId:String
+      programId:String
+
+    }
+
+
+
+##################
+############
+#Issuer 
+############
+##################
+
+
+type getEnrolledProgramByID {
+enrolledProgram:enrolledPrograms
+isCredential:Boolean
+}
+
+    # Issuer type  
+    type Issuer {
+        id: ID!
+        moeId:ID!
+        moeName:String!,
+        moePublicKey:String
+        type:String!
+        name: String!,
+        adminEmail: String!,
+        contactEmail: String,
+        telephone: String!,
+        address: address,
+        siteUrl: String!,
+        logoUrl: String,
+        signature:signature,
+        publicKey: String,
+        privateKey:String
+        approved: Boolean,
+        approvalDate: String,
+        description: String!,
+        revocationList:[String],
+        affiliatedInstitutes:affiliatedInstitutes
+        isVerified:Boolean,
+        createdAt:String!,
+        updatedAt:String!,
+        qrCode:String!
+        fcm:[String]
+        configs:configs
+    }
+
+    type configs {
+        emailConfigs:emailConfigs
+    }
+    type emailConfigs {
+        username:String
+        password:String
+        host:String
+        port:String
+        secure:Boolean
+        cc:[String]
+        bcc:[String]
+    }
+    
+
+    # input payload for IssuerOnBoarding mutation
+    input IssuerOnBoarding {
+        type:String!,
+        name: String!,
+        adminEmail: String!,
+        telephone: String!,
+        siteUrl:String!,
+        description:String!,
+    }
+    # address type 
+    type address {
+        country:String,
+        city:String,
+        street:String,
+    }
+# used for UpdateIssuerDetails
+    input Address {
+        country:String,
+        city:String,
+        street:String,
+    }
+
+
+    #affiliatedInstitutes type
+    type affiliatedInstitutes {
+    name:String,
+    logoUrl:String,
+    active:Boolean
+    }
+
+ # login Type
+  type login {
+    Issuer: Issuer!
+    token: String!  
+  }
+
+  type DashboardRes{
+   totalCourse:JSON
+   totalLearner:JSON
+   totalCredential:JSON
+  }
+
+   input Configuration {
+    emailConfigs:EmailConfigs
+   }
+
+input EmailConfigs {
+username:String!
+password:String!
+host:String!
+port:String!
+secure:Boolean!
+cc:[String]!
+bcc:[String]!
+}
+
+
+##################
+############
+#           Credentials 
+############
+##################
+
+
+       type Credential {
+        id:ID
+        type:String
+        programId:String
+        faculty:String
+        level:String
+        title:String
+        description:String
+        creditHours:String
+        cgpa:String
+        issuanceDate:String
+        expiryDate:String
+        session:String
+        credentialUrl:String
+        issuer:CredentialIssuer
+        learner:CredentialLearner
+        moe:CredentialMoe
+        credentialTrackingStatus:credentialTrackingStatus
+        txnId:String
+       }
+
+       type CredentialIssuer {
+         id:String,
+         type:String,
+         name:String,
+         url:String,
+         address:address,
+       }
+
+       type CredentialLearner {
+         id:String
+         registrationNumber:String
+         programRegistrationNumber:String
+         firstName:String
+         lastName:String
+  
+       }
+       type CredentialMoe {
+              moeId:String!
+              moeName:String!
+              publicKey:String!
+       }
+
+       input CreateCredential {
+         type:String!
+         programId:String!
+         faculty:String!
+         level:String!
+         title:String!
+         description:String!
+         creditHours:Int!
+         cgpa:String!
+         issuanceDate:String!
+         expiryDate:String!
+         session:String!
+         learnerId:String!
+         moeId:String!,
+         moeName:String!,
+         moePublicKey:String!
+       }
+
+
+      type credentialTrackingStatus {
+      currentStatus:String
+      created:created
+      issuerSign:issuerSign
+      learnerSign:learnerSign
+attestationRequest:attestationRequest
+      moeSign:moeSign
+
+       }
+
+       type attestationRequest {
+        status:String
+        date:String
+       }
+
+       type created {
+            status:String,
+             date:String
+        }
+
+
+        type issuerSign {
+             status:String
+             date:String
+             publicKey:String
+             issuerECDSA:issuerECDSA
+              }
+        type learnerSign { 
+             status:String
+             date:String
+             publicKey:String
+             learnerECDSA:learnerECDSA
+              }
+        type moeSign {
+             status:String
+             date:String
+             publicKey:String
+             moeECDSA:moeECDSA
+              }
+
+        type moeECDSA {
+          signingDate:String
+          r:String
+          s:String
+          # k:String
+        }
+        type learnerECDSA {
+          signingDate:String
+          r:String
+          s:String
+          # k:String
+        }
+        type issuerECDSA{
+          signingDate:String
+          r:String
+          s:String
+          # k:String
+        }
+
+
+
+type CredentialsForCards {
+id:String!,
+title:String!,
+cards:[Credential],
+}
+
+
+
+
+
+
+
+
+`

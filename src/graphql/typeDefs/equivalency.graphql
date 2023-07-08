@@ -1,0 +1,129 @@
+import  {gql} from "apollo-server-express" 
+module.exports  =  gql`
+ scalar Date
+type equivalency {
+    id:ID!
+    learnerId:String!
+    issuerId:String!
+    moeId:String!
+    credentialId:String!
+    graduateCertificate:graduateCertificate
+    Transcript:Transcript
+    transferredHours:transferredHours
+    highSchoolCertificate:highSchoolCertificate
+    legalTranslation:legalTranslation
+    authenticityOfTheQualification:authenticityOfTheQualification
+    attendanceInTheCountryOfStudy:attendanceInTheCountryOfStudy
+    trackingStatus:[trackingStatus]
+}
+
+ type trackingStatus {
+  type:String,
+  status:String,
+  date:Date,
+  comment:String,
+ }
+
+ type status {
+  status:String,
+  date:String
+  comment:String
+ }
+
+input equivalencyPayload {
+  equivalencyId:String
+issuerId:String
+moeId:String
+credentialId:String
+graduateCertificate:I_graduateCertificate
+Transcript:I_Transcript
+transferredHours:I_transferredHours
+highSchoolCertificate:I_highSchoolCertificate
+legalTranslation:I_legalTranslation
+authenticityOfTheQualification:I_authenticityOfTheQualification
+attendanceInTheCountryOfStudy:I_attendanceInTheCountryOfStudy
+}
+
+input updateEquivalencyStatus {
+   equivalencyId:ID,
+   status:String,
+   equivalencyCertificate:String,
+   comment:String,
+   graduateCertificate:I_graduateCertificate
+   Transcript:I_Transcript
+   transferredHours:I_transferredHours
+   highSchoolCertificate:I_highSchoolCertificate
+   legalTranslation:I_legalTranslation
+   authenticityOfTheQualification:I_authenticityOfTheQualification
+  attendanceInTheCountryOfStudy:I_attendanceInTheCountryOfStudy
+}
+
+type graduateCertificate {
+base64:String
+status:String
+}
+
+type Transcript {
+base64:String
+status:String
+}
+
+type transferredHours {
+base64:String
+status:String
+}
+
+type highSchoolCertificate {
+base64:String
+status:String
+}
+
+type legalTranslation {
+base64:String
+status:String
+}
+type authenticityOfTheQualification {
+base64:String
+status:String
+}
+type attendanceInTheCountryOfStudy {
+base64:String
+status:String
+}
+
+
+
+input I_graduateCertificate {
+base64:String
+status:String
+}
+
+input I_Transcript {
+base64:String
+status:String
+}
+
+input I_transferredHours {
+base64:String
+status:String
+}
+
+input I_highSchoolCertificate {
+base64:String
+status:String
+}
+
+input I_legalTranslation {
+base64:String
+status:String
+}
+input I_authenticityOfTheQualification {
+base64:String
+status:String
+}
+input I_attendanceInTheCountryOfStudy {
+base64:String
+status:String
+}
+
+`

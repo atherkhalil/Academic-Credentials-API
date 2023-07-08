@@ -1,0 +1,271 @@
+import  {gql} from "apollo-server-express" 
+
+module.exports  =  gql`
+
+    type Query {
+     GetCoursesByIssuer: [Course]
+     GetCourseById(courseId:ID): Course 
+     GetGradeBYIssuer:[Grade]
+     GetGradeBYId(gradeId:String):Grade
+     GetProgramsByIssuer:[Program]!
+     GetProgramByID(Id:String): JSON
+     getLearnerProgramsByIssuer(learnerId:ID!) : [enrolledPrograms]
+     GetMajorByIssuer:  JSON
+     GetMajorByIds(majors:JSON):JSON
+    },
+
+    type Mutation {
+    AddCourse(data:AddCourse) : Course!
+    UpdateCourse(data:updateCourse) : Course!
+    DeleteCourse(courseId:String) : String
+    UpdateCourseInSemester(data:UpdateCourseInSemester) : String
+    DeleteCourseFromSemester(programId:String!,semesterNumber:Int!,courseId:String!) : String
+    UpdateProgramCourseResult(data:UpdateProgramCourseResult) : String!
+    AddGrade(data:grade) : Grade!
+    UpdateGrade(data:updateGrade) : Grade!
+
+    CalculateGrade(totalMarks:Float!,obtainMarks:Float!) : String
+    UpdateLearnerProgramStatus(learnerId:String!,programId:String!,status:String!) : String 
+    AddProgram(data:AddProgram) : Program!
+    UpdateProgramStatus(Id:ID!,active:Boolean!) : Program
+    UpdateProgram(data:UpdateProgram) :  String!
+    addSemesterInProgram(data:addSemester): String
+    deleteSemesterInProgram(programId:String,semesterId:String): String
+    updateSemesterInProgram(data:addSemester):String
+    AddMajor(data:AddMajor) : Major!
+    UpdateMajor(data:UpdateMajor) :  String
+    getCompulsoryAndElective(majors:JSON) :JSON
+    CalculateCGPAOfProgram(enrolledProgramId:ID!) :JSON
+    },
+
+    type Subscription {
+      newMessage: String!
+    },
+##### Major #####
+
+type Major {
+    id:ID
+    title:String
+    code:String
+    issuerId:String
+    faculty:String
+    courses:[majorCourses]
+}
+
+type majorCourses {
+    courseId:String,
+    compulsory:Boolean,
+    courseName:String
+}
+
+input UpdateMajor {
+    majorId:String!
+    title:String!
+    code:String!
+    faculty:String!
+    courses:[majorCourse]!
+}
+input AddMajor {
+  title:String!
+    code:String!
+    faculty:String!
+    courses:[majorCourse]!
+}
+
+input majorCourse {
+    courseId:ID!,
+    compulsory:Boolean!
+    courseName:String!
+}
+
+
+       ###### Grade ###### 
+    type Grade {
+        id:ID!
+        issuerId:ID!
+        grade:String!
+        percentageFrom:Int!
+        percentageTo:Int!
+        gpa:Float! 
+        credits:Float!
+    }
+
+    input grade {
+        grade:String!
+        percentageFrom:Int!
+        percentageTo:Int!
+        gpa:Float!
+        credits:Float!
+    }
+
+    input updateGrade{ 
+        gradeId:String!
+        grade:String!
+        percentageFrom:Int!
+        percentageTo:Int!
+        gpa:Float!
+        credits:Float!
+    }
+
+
+    type Program {
+        id:ID!,
+        issuerId:ID!,
+        title:String!,
+        duration:String!,
+        creditHours:String!,
+        code:String,
+        description:String,
+        active:Boolean!
+        createdAt:String!,
+        level:String!,
+        faculty:String!,
+        updatedAt:String!,
+     
+        totalSemesters:Int!,
+        totalYears:Int,
+        major:[major]
+        
+
+    }
+    type major {
+        title:String
+        majorId:String
+    }
+
+    type semesters {
+        id:ID
+        semesterNumber:Int
+        creditHours:Int
+        totalCourse:Int
+        status:String
+        gpa:Float
+        courses:[courses]
+    }
+
+  
+
+    input addSemester {
+        programId:ID!,
+        semester:semester
+    }
+
+    input semester {
+        semesterNumber:Int
+        creditHours:Int
+        totalCourse:Int
+        status:String
+        courses:[course]
+    }
+
+    type courses {
+        id:ID
+        courseId:String
+        code:String
+        title:String
+        description:String
+        creditHours:Int
+        totalMarks:Int
+        passingCriteria:String
+        grade:String
+        obtainMarks:String
+        creditPoints:Float
+    }
+
+    input course {
+        courseId:ID,
+        code:String
+        title:String
+        description:String
+        creditHours:Int
+        totalMarks:Int
+        passingCriteria:String
+        obtainMarks:String
+        creditPoints:Float
+        grade:String
+    }
+
+    input UpdateCourseInSemester {
+        programId:String,
+        semesterNumber:Int,
+        course:course
+    }
+
+    input UpdateProgramCourseResult {
+        enrolledProgramId:ID!
+        learnerId:ID!
+        semesterNumber:Int!
+        course:course!
+    }
+
+    input UpdateProgram {
+        programId:String!,
+        title:String!,
+        duration:String!,
+        creditHours:String!,
+        code:String,
+        description:String,
+        active:Boolean!
+        level:String!,
+        faculty:String!,
+        # sessionType:String!,
+        totalSemesters:Int!,
+        totalYears:Int,
+        major:[p_Major]
+    }
+
+    # input payload for AddCourse 
+    input AddProgram {
+         title:String!
+         duration:String!
+         creditHours:Int!
+         code:String!
+         description:String!
+         faculty:String!
+         level:String!
+        #  sessionType:String!
+         totalSemesters:Int!
+         major:[p_Major]!
+        #  semesters: [I_semesters]
+       }
+
+       input p_Major {
+        title:String
+        majorId:String
+       }
+
+
+    input UpdateProgramCourseResult {
+        enrolledProgramId:ID!
+        learnerId:ID!
+        semesterNumber:Int!
+      }
+
+    type Course {
+        id:ID!,
+        issuerId:String!,
+        code:String!
+        title:String!
+        description:String!,
+        faculty:String!
+        active:Boolean!
+        creditHours:Int
+    }
+
+    input AddCourse {
+      code:String!
+      title:String!
+      description:String!,
+      faculty:String!
+      creditHours:Int
+    }
+
+    input updateCourse {
+      courseId:ID!,
+      code:String!,
+      title:String!,
+      description:String!,
+      faculty:String!
+      active:Boolean!
+    }
+`
